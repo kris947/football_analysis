@@ -135,16 +135,23 @@ def get_Table_Information(player_link,table_type):
     player_soup = open_link(player_link)
     try:
         player_infos = player_soup.find('table', {'id':table_type})
-        years=player_infos.find_all('tr',{'class':'full_table'})
+        years=player_infos.find_all('tr',["full_table", "partial_table"])
         year_stats=[]
+        prev_year = 0
         for year in years:
             keys=[]
             values=[]
             for item in year.find_all('th', attrs={'data-stat': True}):
                 keys.append(item['data-stat'])
                 if item['data-stat']=='year_id':
-                    value=re.sub("[^0-9]", "",item.text)
-                    values.append(value)
+                    if item.text =="":
+                        values.append(prev_year)
+                    else:
+                        value=re.sub("[^0-9]", "",item.text)
+                        values.append(value)
+                        if item.text != 0:
+                            prev_year=value
+
                 else:
                     values.append(item.text)
 
@@ -163,7 +170,7 @@ def get_Table_Information(player_link,table_type):
         year_stats=[]
     return year_stats
 
-
+'''
 
 # A:65  Z:91
 
@@ -201,7 +208,7 @@ with open('retry_links', 'w+') as out_file:
 
 
 #get_WR_and_RB_information('https://www.pro-football-reference.com//players/A/AbbrJa00.htm','receiving_and_rushing')
-res=get_player_basic_information('https://www.pro-football-reference.com/players/B/BradTo00.htm')
+res=get_player_basic_information('https://www.pro-football-reference.com/players/P/PeteAd01.htm')
 with open('2017_all_player.data', 'w+') as out_file:
     pp = pprint.PrettyPrinter(indent=4, stream=out_file)
     pp.pprint(res)
@@ -209,5 +216,5 @@ with open('2017_all_player.data', 'w+') as out_file:
 json.dump(res, open("text.txt",'w'))
 d2 = json.load(open("text.txt"))
 print(d2)
-'''
+
 
