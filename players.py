@@ -1,12 +1,15 @@
 import urllib3
 import urllib
 import re
+import time
 import requests
 import pprint
 import threading
 import lxml
 from bs4 import BeautifulSoup
-
+import os
+import sys
+import json
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 MYLink= 'https://www.pro-football-reference.com'
@@ -35,7 +38,7 @@ def get_player_basic_information(player_link):
     #print(player_infos)
     try:
         full_name_list =player_infos.find('strong').text.strip().split('(')
-        full_name=full_name_list[0]
+        full_name=full_name_list[0].strip()
     except AttributeError:
         full_name=''
     try:
@@ -70,9 +73,14 @@ def get_player_basic_information(player_link):
     except AttributeError:
         university=''
 
-    #to fix
-    #weighted_carrer_AV=player_infos.find_all(p).('a',href = re.compile(r'/blog/*')).text.split()[4]
     weighted_carrer_AV=0
+    paragraphs=player_soup.find_all('p')
+    for paragraph in paragraphs:
+        if paragraph.find('a',href = re.compile(r'/blog/*')):
+            weighted_carrer_AV = paragraph.text.split('(')[1].split(':')[1]
+            break
+
+
 
     #if drafted
     try:
@@ -106,7 +114,7 @@ def get_player_basic_information(player_link):
                    'draft_class':draft_class,
                    'salary':salary,
                    'picture_URL':picture_URL}
-
+    print(player_info)
     tables=player_soup.find_all('table',{'id':True})
     for table in tables:
         if table['id']!='sim_scores' or table['id']!='all_pro':
@@ -134,14 +142,23 @@ def get_Table_Information(player_link,table_type):
             values=[]
             for item in year.find_all('th', attrs={'data-stat': True}):
                 keys.append(item['data-stat'])
-                values.append(item.text)
+                if item['data-stat']=='year_id':
+                    value=re.sub("[^0-9]", "",item.text)
+                    values.append(value)
+                else:
+                    values.append(item.text)
+
             for item in year.find_all('td', attrs={'data-stat': True}):
                 keys.append(item['data-stat'])
-                values.append(item.text)
+                if item['data-stat']=='year_id':
+                    value=re.sub("[^0-9]",item.text)
+                    values.append(value)
+                else:
+                    values.append(item.text)
 
             d = dict(zip(keys, values))
             year_stats.append(d)
-        print(year_stats)
+        #print(year_stats)
     except AttributeError:
         year_stats=[]
     return year_stats
@@ -149,32 +166,48 @@ def get_Table_Information(player_link,table_type):
 
 
 # A:65  Z:91
-all_player = []
+
+not_done=[]
 for i in range(65,66):
+
+    all_player = []
     plink=[]
     linkin=[]
     PlayersLink = 'https://www.pro-football-reference.com/players'+'/'+chr(i)
     print(PlayersLink)
     plink = get_players_ID_and_Name(PlayersLink)
     for link in plink:
+        time.sleep(1)
         print(MYLink +"/"+ link)
-        all_player.append(get_player_basic_information(MYLink +"/"+ link))
-    print('Letter %s Done.' % (chr(i)))
-
-with open('2017_all_player.data', 'w+') as out_file:
+        try:
+            all_player.append(get_player_basic_information(MYLink +"/"+ link))
+        except:
+           not_done.append((MYLink +"/"+ link))
+    json.dump(all_player, open('2017_all_player'+'_'+chr(i)+'.txt', 'w'))
+    with open('2017_all_player'+'_'+chr(i)+'.data', 'w+') as out_file:
         pp = pprint.PrettyPrinter(indent=4, stream=out_file)
         pp.pprint(all_player)
 
+    print('Letter %s Done.' % (chr(i)))
+    time.sleep(60)
+with open('retry_links', 'w+') as out_file:
+    pp = pprint.PrettyPrinter(indent=4, stream=out_file)
+    pp.pprint(not_done)
+
+'''
+
 
 #For debug
-'''
+
 
 #get_WR_and_RB_information('https://www.pro-football-reference.com//players/A/AbbrJa00.htm','receiving_and_rushing')
 res=get_player_basic_information('https://www.pro-football-reference.com/players/B/BradTo00.htm')
 with open('2017_all_player.data', 'w+') as out_file:
     pp = pprint.PrettyPrinter(indent=4, stream=out_file)
     pp.pprint(res)
+
+json.dump(res, open("text.txt",'w'))
+d2 = json.load(open("text.txt"))
+print(d2)
 '''
-
-
 
