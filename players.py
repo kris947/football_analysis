@@ -170,12 +170,12 @@ def get_Table_Information(player_link,table_type):
         year_stats=[]
     return year_stats
 
-'''
+
 
 # A:65  Z:91
 
 not_done=[]
-for i in range(65,66):
+for i in range(83,91):
 
     all_player = []
     plink=[]
@@ -191,13 +191,15 @@ for i in range(65,66):
         except:
            not_done.append((MYLink +"/"+ link))
     json.dump(all_player, open('2017_all_player'+'_'+chr(i)+'.txt', 'w'))
+    '''   
     with open('2017_all_player'+'_'+chr(i)+'.data', 'w+') as out_file:
         pp = pprint.PrettyPrinter(indent=4, stream=out_file)
         pp.pprint(all_player)
-
+    '''
     print('Letter %s Done.' % (chr(i)))
     time.sleep(60)
-with open('retry_links', 'w+') as out_file:
+timestr = time.strftime("%Y%m%d-%H%M%S")
+with open('retry_links_'+timestr, 'w+') as out_file:
     pp = pprint.PrettyPrinter(indent=4, stream=out_file)
     pp.pprint(not_done)
 
@@ -217,4 +219,4 @@ json.dump(res, open("text.txt",'w'))
 d2 = json.load(open("text.txt"))
 print(d2)
 
-
+'''
