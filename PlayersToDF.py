@@ -43,9 +43,6 @@ def get_list_from_Fantasy_Table(key,dict):
 def transform_metric(metric):
     return float(metric.replace('-','.'));
 
-
-
-
 def push_player_information_to_Db(mysource):
     playerdict = json.load(open(mysource))
     Player_Information_Pool = pd.DataFrame(playerdict)
@@ -61,7 +58,6 @@ def push_player_information_to_Db(mysource):
 def push_table_to_Db(mysource):
     playerdict = json.load(open(mysource))
 
-
     receiving_and_rushing = pd.DataFrame(get_list_from_Table('receiving_and_rushing', playerdict))
     receiving_and_rushing_playoffs = pd.DataFrame(get_list_from_Table('receiving_and_rushing_playoffs', playerdict))
     returns = pd.DataFrame(get_list_from_Table('returns', playerdict))
@@ -75,9 +71,6 @@ def push_table_to_Db(mysource):
     Fantasy = pd.DataFrame(get_list_from_Fantasy_Table('fantasy', playerdict))
 
 
-
-
-
     receiving_and_rushing.to_sql(con=engine, name=' receiving_and_rushing', if_exists='append', index=False)
     receiving_and_rushing_playoffs.to_sql(con=engine, name='receiving_and_rushing_playoffs', if_exists='append', index=False)
     returns.to_sql(con=engine, name='returns', if_exists='append', index=False)
@@ -89,20 +82,6 @@ def push_table_to_Db(mysource):
     kicking.to_sql(con=engine, name='kicking', if_exists='append', index=False)
     passing.to_sql(con=engine, name='passing', if_exists='append', index=False)
     Fantasy.to_sql(con=engine, name='fantasy', if_exists='append', index=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 playerdict = json.load(open('2017_all_player_A.txt'))
 
