@@ -87,7 +87,7 @@ playerdict = json.load(open('2017_all_player_A.txt'))
 
 Player_Information_Pool=pd.DataFrame(playerdict)
 
-engine = sqlalchemy.create_engine("mysql+pymysql://root:r00tp4ss@footballstats.cuui3lhchveu.eu-central-1.rds.amazonaws.com/football_stats")
+engine = sqlalchemy.create_engine("mysql+pymysql://username:pw@dblocation")
 
 
 for file in glob.glob("2017_all_player_*.txt"):
